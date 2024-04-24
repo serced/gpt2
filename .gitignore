@@ -187,4 +187,4 @@ docker_node_modules/
 .vscode
 
 # Ignore the input data
-*.txt
+*.ruff_cache

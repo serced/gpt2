@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "transformers_replication"
+dynamic = ["version"]
+description = "A package to replicate the transformers implementations"
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = ["transformers", "replication", "nlp", "ai"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+dependencies = [
+    "matplotlib",
+    "torch",
+    "numpy",
+]
+
