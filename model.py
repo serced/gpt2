@@ -1,10 +1,11 @@
 # %%
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-import numpy as np
-import matplotlib.pyplot as plt
+MAXIMUM_SEQUENCE_LENGTH = 256
 
 
 # %%
@@ -163,10 +164,9 @@ class TransformerDecoderBlock(nn.Module):
         x = self.post_attention_dropout(x)
         x = x + residual
 
-        x = self.pre_mlp_layer_normalization(x)
-
         # Second residual connection wrapper
         residual = x.clone()
+        x = self.pre_mlp_layer_normalization(x)
         x = self.multi_layer_perceptron(x)
         x = self.post_mlp_dropout(x)
         x = x + residual
@@ -246,11 +246,12 @@ class GenerativePretrainedTransformer(nn.Module):
         predict the next characters from any input sequence.
         """
         input_text_indices = input_text_indices.unsqueeze(0)
+        full_sequence = input_text_indices.clone()
         current_sequence_length = input_text_indices.size(1)
 
         for _ in range(max_length):
             # Check that the context is not too long, otherwise cut it
-            if input_text_indices.size(1) <= MAXIMUM_SEQUENCE_LENGTH:
+            if current_sequence_length > MAXIMUM_SEQUENCE_LENGTH:
                 input_text_indices = input_text_indices[:, -MAXIMUM_SEQUENCE_LENGTH:]
 
             # Pass through the model
@@ -267,13 +268,17 @@ class GenerativePretrainedTransformer(nn.Module):
             # Transform the model prediction into a probability distribution and sample from it
             next_character_probabilities = F.softmax(next_character_logits, dim=-1)
             next_character = torch.multinomial(next_character_probabilities, 1)
+
             # Append to the sequence
             input_text_indices = torch.cat(
                 [input_text_indices, next_character.unsqueeze(0)], dim=1
             )
+            full_sequence = torch.cat(
+                [full_sequence, next_character.unsqueeze(0)], dim=1
+            )
             current_sequence_length += 1
 
-        return input_text_indices
+        return full_sequence
 
 
 # %%
